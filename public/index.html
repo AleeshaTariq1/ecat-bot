@@ -3,100 +3,478 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ECAT Bot</title>
+  <title>ECAT Bot — AI Study Assistant</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #ffffff;
+      --bg-secondary: #f7f7f8;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6e6e80;
+      --border: #e5e5e5;
+      --accent: #10a37f;
+      --accent-hover: #0d8c6c;
+      --user-bubble: #f7f7f8;
+      --bot-bubble: #ffffff;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #1a1a2e;
-      color: white;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+
+    .header-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .header-text p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .chat-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px 16px 100px;
+    }
+
+    .empty-state {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 20px 40px;
+      gap: 12px;
     }
-    h1 { color: #00d4ff; }
-    #chatbox {
-      width: 100%;
-      max-width: 600px;
-      height: 400px;
-      background: #16213e;
-      border-radius: 10px;
-      padding: 15px;
-      overflow-y: auto;
-      margin-bottom: 15px;
-    }
-    .user-msg {
-      background: #0f3460;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin: 5px 0;
-      text-align: right;
-    }
-    .bot-msg {
-      background: #533483;
-      padding: 8px 12px;
-      border-radius: 8px;
-      margin: 5px 0;
-    }
-    #inputArea {
+
+    .empty-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--accent);
+      border-radius: 14px;
       display: flex;
-      width: 100%;
-      max-width: 600px;
-      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 8px;
     }
+
+    .empty-state h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 320px;
+      line-height: 1.5;
+    }
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+      max-width: 480px;
+    }
+
+    .chip {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-primary);
+      background: var(--bg);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip:hover {
+      background: var(--bg-secondary);
+      border-color: var(--accent);
+    }
+
+    .message-row {
+      display: flex;
+      gap: 12px;
+      padding: 16px 0;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .avatar.user {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .avatar.bot {
+      background: var(--accent);
+    }
+
+    .message-content {
+      flex: 1;
+      padding-top: 4px;
+    }
+
+    .message-role {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .message-text {
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message-text strong {
+      font-weight: 600;
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 8px 0;
+    }
+
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    .input-area {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, var(--bg) 60%, transparent);
+      padding: 24px 16px 20px;
+    }
+
+    .input-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .input-box {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 10px 10px 10px 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      transition: border-color 0.15s ease;
+    }
+
+    .input-box:focus-within {
+      border-color: var(--accent);
+    }
+
     #userInput {
       flex: 1;
-      padding: 10px;
-      border-radius: 8px;
       border: none;
-      background: #16213e;
-      color: white;
-      font-size: 16px;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.4;
+      max-height: 120px;
+      background: transparent;
+      color: var(--text-primary);
+      padding: 6px 0;
     }
-    button {
-      padding: 10px 20px;
-      background: #00d4ff;
-      color: black;
+
+    #userInput::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .send-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent);
       border: none;
-      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      font-weight: bold;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+
+    .send-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .send-btn:disabled {
+      background: var(--border);
+      cursor: not-allowed;
+    }
+
+    .send-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .input-footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 10px;
+    }
+
+    .chat-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-container::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    @media (max-width: 600px) {
+      .empty-state { padding: 60px 16px 30px; }
+      .empty-state h2 { font-size: 19px; }
+      .message-text { font-size: 14.5px; }
     }
   </style>
 </head>
 <body>
-  <h1>🎯 ECAT AI Bot</h1>
-  <p>Physics, Math, Chemistry — Roman Urdu mein!</p>
-  <div id="chatbox"></div>
-  <div id="inputArea">
-    <input type="text" id="userInput" placeholder="Apna sawal likho..." />
-    <button onclick="sendMessage()">Bhejo</button>
+
+  <div class="header">
+    <div class="header-icon">🎯</div>
+    <div class="header-text">
+      <h1>ECAT AI Bot</h1>
+      <p>Physics · Math · Chemistry — Roman Urdu mein</p>
+    </div>
+  </div>
+
+  <div class="chat-container" id="chatContainer">
+    <div class="chat-inner" id="chatInner">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🎯</div>
+        <h2>ECAT ki tayari shuru karein</h2>
+        <p>Physics, Math, ya Chemistry ka koi bhi sawal poocho — Roman Urdu mein jawab milega.</p>
+        <div class="suggestion-chips">
+          <div class="chip" onclick="askSuggestion(this)">Physics ke kitne questions ayenge?</div>
+          <div class="chip" onclick="askSuggestion(this)">Negative marking hoti hai?</div>
+          <div class="chip" onclick="askSuggestion(this)">Newton ke laws samjhao</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="input-inner">
+      <div class="input-box">
+        <textarea id="userInput" placeholder="Apna sawal likho..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-footer">ECAT AI Bot galtiyan kar sakta hai — important info verify zaroor karo.</div>
+    </div>
   </div>
 
   <script>
-    async function sendMessage() {
-      const input = document.getElementById("userInput");
-      const chatbox = document.getElementById("chatbox");
-      const message = input.value.trim();
-      if (!message) return;
+    const chatInner = document.getElementById('chatInner');
+    const chatContainer = document.getElementById('chatContainer');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const emptyState = document.getElementById('emptyState');
 
-      chatbox.innerHTML += `<div class="user-msg">🧑 ${message}</div>`;
-      input.value = "";
+    userInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
 
-      const res = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
+    userInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
 
-      const data = await res.json();
-      chatbox.innerHTML += `<div class="bot-msg">🤖 ${data.reply}</div>`;
-      chatbox.scrollTop = chatbox.scrollHeight;
+    function askSuggestion(el) {
+      userInput.value = el.textContent;
+      sendMessage();
     }
 
-    document.getElementById("userInput").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") sendMessage();
-    });
+    function scrollToBottom() {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function formatText(text) {
+      return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    function addMessage(role, text) {
+      if (emptyState) emptyState.style.display = 'none';
+
+      const row = document.createElement('div');
+      row.className = 'message-row';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar ' + role;
+      avatar.textContent = role === 'user' ? '🧑' : '🎯';
+
+      const content = document.createElement('div');
+      content.className = 'message-content';
+
+      const roleLabel = document.createElement('div');
+      roleLabel.className = 'message-role';
+      roleLabel.textContent = role === 'user' ? 'Aap' : 'ECAT Bot';
+
+      const textDiv = document.createElement('div');
+      textDiv.className = 'message-text';
+      textDiv.innerHTML = formatText(text);
+
+      content.appendChild(roleLabel);
+      content.appendChild(textDiv);
+      row.appendChild(avatar);
+      row.appendChild(content);
+      chatInner.appendChild(row);
+
+      scrollToBottom();
+      return textDiv;
+    }
+
+    function showTyping() {
+      const row = document.createElement('div');
+      row.className = 'message-row';
+      row.id = 'typingRow';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar bot';
+      avatar.textContent = '🎯';
+
+      const content = document.createElement('div');
+      content.className = 'message-content';
+
+      const indicator = document.createElement('div');
+      indicator.className = 'typing-indicator';
+      indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+
+      content.appendChild(indicator);
+      row.appendChild(avatar);
+      row.appendChild(content);
+      chatInner.appendChild(row);
+      scrollToBottom();
+    }
+
+    function removeTyping() {
+      const row = document.getElementById('typingRow');
+      if (row) row.remove();
+    }
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      addMessage('user', message);
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      sendBtn.disabled = true;
+
+      showTyping();
+
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await res.json();
+        removeTyping();
+        addMessage('bot', data.reply);
+      } catch (err) {
+        removeTyping();
+        addMessage('bot', 'Maazrat — kuch masla ho gaya. Dobara try karo.');
+      }
+
+      sendBtn.disabled = false;
+      userInput.focus();
+    }
   </script>
 </body>
 </html>
