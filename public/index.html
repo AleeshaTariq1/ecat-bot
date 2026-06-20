@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECAT Bot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 { color: #00d4ff; }
+    #chatbox {
+      width: 100%;
+      max-width: 600px;
+      height: 400px;
+      background: #16213e;
+      border-radius: 10px;
+      padding: 15px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+    .user-msg {
+      background: #0f3460;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin: 5px 0;
+      text-align: right;
+    }
+    .bot-msg {
+      background: #533483;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin: 5px 0;
+    }
+    #inputArea {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      gap: 10px;
+    }
+    #userInput {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #16213e;
+      color: white;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #00d4ff;
+      color: black;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 ECAT AI Bot</h1>
+  <p>Physics, Math, Chemistry — Roman Urdu mein!</p>
+  <div id="chatbox"></div>
+  <div id="inputArea">
+    <input type="text" id="userInput" placeholder="Apna sawal likho..." />
+    <button onclick="sendMessage()">Bhejo</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const chatbox = document.getElementById("chatbox");
+      const message = input.value.trim();
+      if (!message) return;
+
+      chatbox.innerHTML += `<div class="user-msg">🧑 ${message}</div>`;
+      input.value = "";
+
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+      chatbox.innerHTML += `<div class="bot-msg">🤖 ${data.reply}</div>`;
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    document.getElementById("userInput").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
