@@ -14,13 +14,13 @@
 
     :root {
       --bg: #ffffff;
-      --bg-secondary: #f7f7f8;
-      --sidebar-bg: #171717;
-      --sidebar-hover: #2a2a2a;
-      --sidebar-active: #333333;
-      --sidebar-text: #ececec;
-      --sidebar-text-dim: #8e8ea0;
-      --sidebar-border: #3a3a3a;
+      --bg-secondary: #f0f0f0;
+      --sidebar-bg: #f4f4f4;
+      --sidebar-hover: #e8e8e8;
+      --sidebar-active: #dedede;
+      --sidebar-text: #1a1a1a;
+      --sidebar-text-dim: #6e6e80;
+      --sidebar-border: #dedede;
       --text-primary: #1a1a1a;
       --text-secondary: #6e6e80;
       --border: #e5e5e5;
@@ -32,6 +32,12 @@
     [data-theme="dark"] {
       --bg: #212121;
       --bg-secondary: #2a2a2a;
+      --sidebar-bg: #171717;
+      --sidebar-hover: #2a2a2a;
+      --sidebar-active: #333333;
+      --sidebar-text: #ececec;
+      --sidebar-text-dim: #8e8ea0;
+      --sidebar-border: #3a3a3a;
       --text-primary: #f0f0f0;
       --text-secondary: #9a9aa5;
       --border: #383838;
@@ -470,7 +476,7 @@
 
     <div class="sidebar-footer">
       <button class="sidebar-footer-btn" onclick="toggleDarkMode()">
-        <span id="darkIcon">🌙</span> Dark Mode
+        <span id="darkIcon">🌙</span> <span id="darkLabel">Dark Mode</span>
       </button>
       <button class="sidebar-footer-btn" onclick="toggleLanguage()">
         <span>🌐</span> <span id="langLabel">Switch to Roman Urdu</span>
@@ -689,6 +695,7 @@
         if (theme === 'dark') {
           document.documentElement.setAttribute('data-theme','dark');
           document.getElementById('darkIcon').textContent = '☀️';
+          document.getElementById('darkLabel').textContent = 'Light Mode';
         }
         if (lang === 'roman_urdu') {
           currentLang = 'roman_urdu';
@@ -725,13 +732,17 @@
     function toggleDarkMode() {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       if (isDark) {
+        // Switch to Light Mode
         document.documentElement.removeAttribute('data-theme');
         localStorage.setItem('ecatbot_theme','light');
         document.getElementById('darkIcon').textContent = '🌙';
+        document.getElementById('darkLabel').textContent = 'Dark Mode';
       } else {
+        // Switch to Dark Mode
         document.documentElement.setAttribute('data-theme','dark');
         localStorage.setItem('ecatbot_theme','dark');
         document.getElementById('darkIcon').textContent = '☀️';
+        document.getElementById('darkLabel').textContent = 'Light Mode';
       }
     }
 
