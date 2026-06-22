@@ -13,70 +13,68 @@ app.post("/chat", async (req, res) => {
     const userMessage = req.body.message;
     const subject = req.body.subject || "All";
     const mode = req.body.mode || "chat";
-    const language = req.body.language || "roman_urdu";
+    const language = req.body.language || "english";
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    let languageInstruction = language === "english"
-      ? "Answer in clear, simple English."
-      : "Roman Urdu mein jawab do — simple aur clear.";
+    let languageInstruction = language === "roman_urdu"
+      ? "Roman Urdu mein jawab do — simple aur clear. Technical terms English mein rakh sakte ho."
+      : "Answer in clear, simple English.";
 
-    let subjectInstruction = "Physics, Math, Chemistry, aur English";
-    if (subject === "Physics") subjectInstruction = "sirf Physics";
-    if (subject === "Math") subjectInstruction = "sirf Math";
-    if (subject === "Chemistry") subjectInstruction = "sirf Chemistry";
-    if (subject === "English") subjectInstruction = "sirf English";
+    let subjectInstruction = "Physics, Math, Chemistry, and English";
+    if (subject === "Physics")   subjectInstruction = "Physics only";
+    if (subject === "Math")      subjectInstruction = "Math only";
+    if (subject === "Chemistry") subjectInstruction = "Chemistry only";
+    if (subject === "English")   subjectInstruction = "English only";
 
     let prompt;
 
     if (mode === "mcq") {
-      prompt = `
-Tu ek ECAT preparation assistant hai Pakistan ke students ke liye.
-Student ne ${subjectInstruction} se ek practice MCQ maanga hai.
+      prompt = `You are an ECAT preparation assistant for Pakistani students.
+The student wants a practice MCQ from: ${subjectInstruction}.
 
-Ek ECAT-style multiple choice question banao (${subjectInstruction} se, agar "All" hai to koi bhi subject choose kar lo).
-Format bilkul yeh follow karo:
+Create one ECAT-style multiple choice question. Use this exact format:
 
-**Sawal:** [question yahan]
+**Question:** [question here]
 
 A) [option]
 B) [option]
 C) [option]
 D) [option]
 
-Sirf sawal aur options do — jawab mat batao abhi. ${languageInstruction} (technical terms English mein rakh sakte ho).
-Agar koi math/physics equation ho to use LaTeX format mein likho, jaise $E = mc^2$ ya $$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$
-      `;
+Only provide the question and options — do NOT reveal the answer yet.
+${languageInstruction}
+For math/physics/chemistry equations use LaTeX: $E = mc^2$ (inline) or $$x = \\frac{-b}{2a}$$ (display).`;
+
     } else if (mode === "mcq_answer") {
-      prompt = `
-Tu ek ECAT preparation assistant hai. Yeh tha sawal jo tum ne diya tha:
+      prompt = `You are an ECAT preparation assistant.
+The question was:
 ${req.body.previousQuestion}
 
-Student ka jawab: ${userMessage}
+The student selected: ${userMessage}
 
-Bolo ke jawab sahi hai ya ghalat, phir sahi answer aur uski short explanation do. ${languageInstruction} Agar equation ho to LaTeX format mein likho ($...$ ya $$...$$).
-      `;
-    } else {
-      prompt = `
-Tu ek ECAT preparation assistant hai Pakistan ke students ke liye.
-Sirf ECAT related sawaalon ka jawab do — ${subjectInstruction}.
+Tell the student whether their answer is correct or wrong, then give the correct answer with a brief clear explanation.
 ${languageInstruction}
-Agar koi math ya physics/chemistry equation ho to use LaTeX format mein likho, jaise $E = mc^2$ ya $$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$ — taake properly render ho sake.
-Agar student past papers ke baare mein pooche, to unhe bata do ke "Practice Mode" use karke practice MCQs try kar sakte hain.
-Student ka sawal: ${userMessage}
-      `;
+For equations use LaTeX format ($...$ or $$...$$).`;
+
+    } else {
+      prompt = `You are an ECAT preparation assistant for Pakistani students.
+Only answer ECAT-related questions about: ${subjectInstruction}.
+${languageInstruction}
+For math/physics/chemistry equations use LaTeX: $E = mc^2$ (inline) or $$x = \\frac{-b}{2a}$$ (display).
+Student's question: ${userMessage}`;
     }
 
     const result = await model.generateContent(prompt);
-    const response = result.response.text();
-    res.json({ reply: response });
+    const reply = result.response.text();
+    res.json({ reply });
 
   } catch (error) {
-    console.error("Error:", error.message);
-    res.json({ reply: "Thodi der baad try karo — server busy hai! 🙏" });
+    console.error("Server error:", error.message);
+    res.status(500).json({ reply: "Something went wrong. Please try again." });
   }
 });
 
 app.listen(3000, () => {
-  console.log("ECAT Bot chal raha hai — port 3000 pe!");
+  console.log("ECAT Bot running on port 3000!");
 });

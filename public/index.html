@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -91,12 +91,50 @@
     .new-chat-btn:hover { background: var(--sidebar-hover); }
     .new-chat-btn svg { flex-shrink: 0; }
 
+    /* MCQ Section in sidebar */
+    .sidebar-mcq-section {
+      padding: 8px 8px 4px;
+      border-bottom: 1px solid var(--sidebar-border);
+    }
     .sidebar-section-label {
       padding: 10px 14px 4px;
       font-size: 11px; font-weight: 600;
       color: var(--sidebar-text-dim);
       text-transform: uppercase; letter-spacing: 0.05em;
     }
+    .sidebar-mcq-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 10px; border-radius: 8px;
+      border: none; background: var(--accent);
+      color: white; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s ease;
+      width: 100%; text-align: left; margin-bottom: 6px;
+    }
+    .sidebar-mcq-btn:hover { background: var(--accent-hover); }
+
+    /* Subject pills in sidebar MCQ area */
+    .sidebar-subject-pills {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      padding: 4px 2px 8px;
+    }
+    .sidebar-subject-pill {
+      padding: 4px 10px; border-radius: 12px;
+      border: 1px solid var(--sidebar-border);
+      background: transparent; color: var(--sidebar-text-dim);
+      font-size: 11px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .sidebar-subject-pill.active {
+      background: var(--accent); border-color: var(--accent); color: white;
+    }
+
+    /* MCQ stats in sidebar */
+    .sidebar-mcq-stats {
+      padding: 6px 10px 8px;
+      font-size: 11.5px; color: var(--sidebar-text-dim);
+      border-bottom: 1px solid var(--sidebar-border);
+    }
+    .sidebar-mcq-stats span { color: var(--sidebar-text); font-weight: 600; }
 
     .chat-list {
       flex: 1; overflow-y: auto; padding: 4px 8px 12px;
@@ -203,9 +241,8 @@
       transition: background 0.15s ease; gap: 4px; white-space: nowrap;
     }
     .icon-btn:hover { background: var(--bg-secondary); }
-    .icon-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
 
-    /* Subject filter */
+    /* Subject filter in main header area */
     .subject-bar {
       display: flex; gap: 6px; padding: 10px 16px;
       border-bottom: 1px solid var(--border);
@@ -257,25 +294,6 @@
     .empty-state h2 { font-size: 21px; font-weight: 600; color: var(--text-primary); }
     .empty-state p  { font-size: 14px; color: var(--text-secondary); max-width: 340px; line-height: 1.5; }
 
-    .suggestion-chips {
-      display: flex; flex-wrap: wrap; gap: 8px;
-      justify-content: center; margin-top: 16px; max-width: 560px;
-    }
-    .chip {
-      padding: 10px 16px; border: 1px solid var(--border); border-radius: 20px;
-      font-size: 13px; color: var(--text-primary); background: var(--bg);
-      cursor: pointer; transition: all 0.15s ease;
-    }
-    .chip:hover { background: var(--bg-secondary); border-color: var(--accent); }
-
-    .mcq-start-btn {
-      margin-top: 18px; padding: 12px 24px; border-radius: 20px;
-      border: none; background: var(--accent); color: white;
-      font-size: 14px; font-weight: 600; cursor: pointer;
-      display: flex; align-items: center; gap: 8px; transition: background 0.15s ease;
-    }
-    .mcq-start-btn:hover { background: var(--accent-hover); }
-
     /* Messages */
     .message-row { display: flex; gap: 12px; padding: 14px 0; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn {
@@ -309,17 +327,25 @@
 
     .mcq-options { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
     .mcq-option-btn {
-      text-align: right; padding: 10px 14px;
+      text-align: left; padding: 10px 14px;
       border: 1px solid var(--border); border-radius: 10px;
       background: var(--bg); color: var(--text-primary);
       font-size: 14px; cursor: pointer; transition: all 0.15s ease; font-family: inherit;
     }
-    .mcq-option-btn:hover { background: var(--bg-secondary); border-color: var(--accent); }
+    .mcq-option-btn:hover:not(:disabled) { background: var(--bg-secondary); border-color: var(--accent); }
     .mcq-option-btn:disabled { cursor: default; }
     .mcq-option-btn.correct { background: #e3f6ed; border-color: var(--accent); color: #0d6b50; }
     .mcq-option-btn.wrong   { background: #fdecea; border-color: var(--danger); color: #a8392d; }
     [data-theme="dark"] .mcq-option-btn.correct { background: #143d2d; color: #6fe3b4; }
     [data-theme="dark"] .mcq-option-btn.wrong   { background: #422621; color: #f0958a; }
+
+    .next-mcq-btn {
+      margin-top: 10px; padding: 10px 20px; border-radius: 20px;
+      border: none; background: var(--accent); color: white;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .next-mcq-btn:hover { background: var(--accent-hover); }
 
     .typing-indicator { display: flex; gap: 4px; padding: 8px 0; }
     .typing-dot {
@@ -416,12 +442,30 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
         <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
       </svg>
-      Naya Chat
+      New Chat
     </button>
+
+    <!-- MCQ Practice Section -->
+    <div class="sidebar-mcq-section">
+      <div class="sidebar-section-label">📝 Practice MCQs</div>
+      <div class="sidebar-subject-pills" id="mcqSubjectPills">
+        <button class="sidebar-subject-pill active" data-subject="All" onclick="selectMCQSubject(this)">All</button>
+        <button class="sidebar-subject-pill" data-subject="Physics" onclick="selectMCQSubject(this)">Physics</button>
+        <button class="sidebar-subject-pill" data-subject="Math" onclick="selectMCQSubject(this)">Math</button>
+        <button class="sidebar-subject-pill" data-subject="Chemistry" onclick="selectMCQSubject(this)">Chemistry</button>
+        <button class="sidebar-subject-pill" data-subject="English" onclick="selectMCQSubject(this)">English</button>
+      </div>
+      <button class="sidebar-mcq-btn" onclick="startMCQ()">
+        📝 Start MCQ Practice
+      </button>
+      <div class="sidebar-mcq-stats">
+        MCQs: <span id="mcqCorrectStat">0</span> correct / <span id="mcqTotalStat">0</span> attempted
+      </div>
+    </div>
 
     <div class="sidebar-section-label">Recent Chats</div>
     <div class="chat-list" id="chatList">
-      <div class="sidebar-empty" id="sidebarEmpty">Abhi koi chat nahi hai.<br>Naya sawal pooch ke shuru karo!</div>
+      <div class="sidebar-empty" id="sidebarEmpty">No chats yet.<br>Ask a question to get started!</div>
     </div>
 
     <div class="sidebar-footer">
@@ -429,7 +473,7 @@
         <span id="darkIcon">🌙</span> Dark Mode
       </button>
       <button class="sidebar-footer-btn" onclick="toggleLanguage()">
-        <span>🌐</span> <span id="langLabel">Switch to English</span>
+        <span>🌐</span> <span id="langLabel">Switch to Roman Urdu</span>
       </button>
     </div>
   </div>
@@ -446,12 +490,12 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="icon-btn" onclick="newChat()">✏️ Naya Chat</button>
+        <button class="icon-btn" onclick="newChat()">✏️ New Chat</button>
       </div>
     </div>
 
     <div class="subject-bar" id="subjectBar">
-      <div class="subject-pill active" data-subject="All" onclick="selectSubject(this)">Sab</div>
+      <div class="subject-pill active" data-subject="All" onclick="selectSubject(this)">All</div>
       <div class="subject-pill" data-subject="Physics" onclick="selectSubject(this)">Physics</div>
       <div class="subject-pill" data-subject="Math" onclick="selectSubject(this)">Math</div>
       <div class="subject-pill" data-subject="Chemistry" onclick="selectSubject(this)">Chemistry</div>
@@ -459,29 +503,20 @@
     </div>
 
     <div class="progress-bar">
-      📊 Aaj ke sawal: <strong id="todayCount">0</strong> &nbsp;|&nbsp;
-      MCQs: <strong id="mcqCount">0</strong> sahi / <strong id="mcqTotal">0</strong>
+      📊 Today's Questions: <strong id="todayCount">0</strong> &nbsp;|&nbsp;
+      MCQs: <strong id="mcqCorrectCount">0</strong> correct / <strong id="mcqTotalCount">0</strong> attempted
     </div>
 
     <div class="disclaimer-banner">
-      ⚠️ <strong>ECAT AI Bot galtiyan kar sakta hai</strong> — important info hamesha verify karo.
+      ⚠️ <strong>ECAT AI Bot can make mistakes</strong> — always verify important information.
     </div>
 
     <div class="chat-container" id="chatContainer">
       <div class="chat-inner" id="chatInner">
         <div class="empty-state" id="emptyState">
           <div class="empty-icon">🎯</div>
-          <h2 id="emptyTitle">ECAT ki tayari shuru karein</h2>
-          <p id="emptyDesc">Physics, Math, Chemistry, ya English ka koi bhi sawal poocho — Roman Urdu mein jawab milega.</p>
-          <div class="suggestion-chips">
-            <div class="chip" onclick="askSuggestion(this)">Physics ke kitne questions ayenge?</div>
-            <div class="chip" onclick="askSuggestion(this)">Negative marking hoti hai?</div>
-            <div class="chip" onclick="askSuggestion(this)">Newton ke laws samjhao</div>
-            <div class="chip" onclick="askSuggestion(this)">Chemistry mein periodic table important hai?</div>
-            <div class="chip" onclick="askSuggestion(this)">Math ke sabse important topics?</div>
-            <div class="chip" onclick="askSuggestion(this)">Past papers kahan se milenge?</div>
-          </div>
-          <button class="mcq-start-btn" onclick="startMCQ()">📝 Practice MCQ Shuru Karo</button>
+          <h2 id="emptyTitle">Start Your ECAT Preparation</h2>
+          <p id="emptyDesc">Ask any Physics, Math, Chemistry, or English question and get clear, detailed answers. Use the sidebar to practice MCQs by subject.</p>
         </div>
       </div>
     </div>
@@ -489,7 +524,7 @@
     <div class="input-area">
       <div class="input-inner">
         <div class="input-box">
-          <textarea id="userInput" placeholder="Apna sawal likho..." rows="1"></textarea>
+          <textarea id="userInput" placeholder="Type your question..." rows="1"></textarea>
           <button class="send-btn" id="sendBtn" onclick="sendMessage()">
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -501,7 +536,7 @@
             </svg>
           </button>
         </div>
-        <div class="input-footer">Enter dabao bhejne ke liye · Shift+Enter naye line ke liye</div>
+        <div class="input-footer">Press Enter to send · Shift+Enter for new line</div>
       </div>
     </div>
 
@@ -514,14 +549,16 @@
     const userInput     = document.getElementById('userInput');
     const emptyState    = document.getElementById('emptyState');
 
-    let currentSubject    = 'All';
+    let currentSubject     = 'All';
+    let currentMCQSubject  = 'All';
     let currentMCQQuestion = '';
-    let todayCount        = 0;
-    let mcqSolvedCount    = 0;
-    let mcqCorrectCount   = 0;
-    let currentLang       = 'roman_urdu';
-    let abortController   = null;
-    let activeChatId      = null;  // currently loaded chat ID
+    let todayCount         = 0;
+    let mcqSolvedCount     = 0;
+    let mcqCorrectCount    = 0;
+    let currentLang        = 'english';
+    let abortController    = null;
+    let activeChatId       = null;
+    let isGenerating       = false;
 
     // ===== Chat storage helpers =====
     function getAllChats() {
@@ -534,15 +571,6 @@
     function getChatById(id) {
       return getAllChats().find(c => c.id === id) || null;
     }
-    function saveChatMessages(id, messages) {
-      const chats = getAllChats();
-      const idx = chats.findIndex(c => c.id === id);
-      if (idx !== -1) {
-        chats[idx].messages = messages;
-        chats[idx].updatedAt = Date.now();
-        saveAllChats(chats);
-      }
-    }
     function createNewChatRecord(title) {
       const id = 'chat_' + Date.now();
       const chats = getAllChats();
@@ -554,11 +582,6 @@
       const chats = getAllChats().filter(c => c.id !== id);
       saveAllChats(chats);
     }
-    function getCurrentMessages() {
-      if (!activeChatId) return [];
-      const chat = getChatById(activeChatId);
-      return chat ? chat.messages : [];
-    }
     function appendMessageToChat(role, text) {
       if (!activeChatId) return;
       const chats = getAllChats();
@@ -566,8 +589,7 @@
       if (idx !== -1) {
         chats[idx].messages.push({ role, text });
         chats[idx].updatedAt = Date.now();
-        // Auto-title from first user message
-        if (chats[idx].title === 'Naya Chat' && role === 'user') {
+        if (chats[idx].title === 'New Chat' && role === 'user') {
           chats[idx].title = text.slice(0, 40) + (text.length > 40 ? '…' : '');
         }
         saveAllChats(chats);
@@ -576,11 +598,10 @@
 
     // ===== Render sidebar chat list =====
     function renderChatList() {
-      const list = document.getElementById('chatList');
+      const list  = document.getElementById('chatList');
       const empty = document.getElementById('sidebarEmpty');
       const chats = getAllChats();
 
-      // Remove old items except the empty placeholder
       Array.from(list.querySelectorAll('.chat-item')).forEach(el => el.remove());
 
       if (chats.length === 0) {
@@ -664,16 +685,21 @@
       try {
         const stats = localStorage.getItem('ecatbot_stats');
         const theme = localStorage.getItem('ecatbot_theme');
+        const lang  = localStorage.getItem('ecatbot_lang');
         if (theme === 'dark') {
           document.documentElement.setAttribute('data-theme','dark');
           document.getElementById('darkIcon').textContent = '☀️';
         }
+        if (lang === 'roman_urdu') {
+          currentLang = 'roman_urdu';
+          document.getElementById('langLabel').textContent = 'Switch to English';
+        }
         if (stats) {
           const s = JSON.parse(stats);
           if (s.date === new Date().toDateString()) {
-            todayCount = s.todayCount || 0;
+            todayCount     = s.todayCount     || 0;
             mcqSolvedCount = s.mcqSolvedCount || 0;
-            mcqCorrectCount = s.mcqCorrectCount || 0;
+            mcqCorrectCount= s.mcqCorrectCount|| 0;
           }
           updateStats();
         }
@@ -687,9 +713,12 @@
       } catch(e) {}
     }
     function updateStats() {
-      document.getElementById('todayCount').textContent = todayCount;
-      document.getElementById('mcqTotal').textContent   = mcqSolvedCount;
-      document.getElementById('mcqCount').textContent   = mcqCorrectCount;
+      document.getElementById('todayCount').textContent     = todayCount;
+      document.getElementById('mcqTotalCount').textContent  = mcqSolvedCount;
+      document.getElementById('mcqCorrectCount').textContent= mcqCorrectCount;
+      // sidebar stats
+      document.getElementById('mcqTotalStat').textContent   = mcqSolvedCount;
+      document.getElementById('mcqCorrectStat').textContent = mcqCorrectCount;
     }
 
     // ===== Dark mode =====
@@ -709,31 +738,27 @@
     // ===== Language =====
     function toggleLanguage() {
       currentLang = currentLang === 'roman_urdu' ? 'english' : 'roman_urdu';
+      localStorage.setItem('ecatbot_lang', currentLang);
       const lbl = document.getElementById('langLabel');
       if (currentLang === 'english') {
-        lbl.textContent = 'Roman Urdu pe jao';
-        document.getElementById('emptyTitle').textContent = 'Start Your ECAT Preparation';
-        document.getElementById('emptyDesc').textContent  = 'Ask any Physics, Math, Chemistry, or English question — get clear answers in English.';
-        document.getElementById('userInput').placeholder  = 'Type your question...';
-        document.querySelector('.input-footer').textContent = 'Press Enter to send · Shift+Enter for new line';
-        document.querySelector('.header-actions .icon-btn').textContent = '✏️ New Chat';
-        document.querySelector('.new-chat-btn').childNodes[1].textContent = ' New Chat';
+        lbl.textContent = 'Switch to Roman Urdu';
       } else {
         lbl.textContent = 'Switch to English';
-        document.getElementById('emptyTitle').textContent = 'ECAT ki tayari shuru karein';
-        document.getElementById('emptyDesc').textContent  = 'Physics, Math, Chemistry, ya English ka koi bhi sawal poocho — Roman Urdu mein jawab milega.';
-        document.getElementById('userInput').placeholder  = 'Apna sawal likho...';
-        document.querySelector('.input-footer').textContent = 'Enter dabao bhejne ke liye · Shift+Enter naye line ke liye';
-        document.querySelector('.header-actions .icon-btn').textContent = '✏️ Naya Chat';
-        document.querySelector('.new-chat-btn').childNodes[1].textContent = ' Naya Chat';
       }
     }
 
-    // ===== Subject =====
+    // ===== Subject (chat filter) =====
     function selectSubject(el) {
       document.querySelectorAll('.subject-pill').forEach(p => p.classList.remove('active'));
       el.classList.add('active');
       currentSubject = el.dataset.subject;
+    }
+
+    // ===== MCQ Subject (sidebar) =====
+    function selectMCQSubject(el) {
+      document.querySelectorAll('.sidebar-subject-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      currentMCQSubject = el.dataset.subject;
     }
 
     // ===== Input auto-resize =====
@@ -748,10 +773,6 @@
       setTimeout(() => { scrollToBottom(); }, 300);
     });
 
-    function askSuggestion(el) {
-      userInput.value = el.textContent;
-      sendMessage();
-    }
     function scrollToBottom() {
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
@@ -779,7 +800,6 @@
       emptyState.style.display = 'none';
       appendMessageToChat(role, text);
       renderMessage(role, text, true, modeTag);
-      // Update sidebar title
       const chat = getChatById(activeChatId);
       if (chat) document.getElementById('headerTitle').textContent = chat.title.slice(0,35) + (chat.title.length>35?'…':'');
       renderChatList();
@@ -799,7 +819,7 @@
 
       const roleLabel = document.createElement('div');
       roleLabel.className = 'message-role';
-      roleLabel.textContent = role === 'user' ? (currentLang==='english'?'You':'Aap') : 'ECAT Bot';
+      roleLabel.textContent = role === 'user' ? 'You' : 'ECAT Bot';
       if (modeTag) {
         const tag = document.createElement('span');
         tag.className = 'mode-tag';
@@ -845,24 +865,32 @@
 
     // ===== Stop / Send buttons =====
     function setGenerating(on) {
+      isGenerating = on;
       document.getElementById('sendBtn').style.display = on ? 'none' : 'flex';
       document.getElementById('stopBtn').style.display = on ? 'flex' : 'none';
     }
+
     function stopGeneration() {
-      if (abortController) { abortController.abort(); abortController = null; }
+      if (abortController) {
+        abortController.abort();
+        abortController = null;
+      }
+      removeTyping();
+      setGenerating(false);
+      addMessage('bot', '⏹ Response stopped.');
     }
 
     // ===== Ensure chat exists before sending =====
     function ensureChat() {
       if (!activeChatId) {
-        activeChatId = createNewChatRecord('Naya Chat');
+        activeChatId = createNewChatRecord('New Chat');
       }
     }
 
     // ===== Send message =====
     async function sendMessage() {
       const message = userInput.value.trim();
-      if (!message) return;
+      if (!message || isGenerating) return;
 
       ensureChat();
       addMessage('user', message);
@@ -887,9 +915,9 @@
       } catch(err) {
         removeTyping();
         if (err.name === 'AbortError') {
-          addMessage('bot', currentLang === 'english' ? '⏹ Generation stopped.' : '⏹ Response rok di gayi.');
+          // already handled by stopGeneration
         } else {
-          addMessage('bot', currentLang === 'english' ? 'Sorry — something went wrong.' : 'Maazrat — kuch masla ho gaya.');
+          addMessage('bot', 'Something went wrong. Please try again.');
         }
       }
 
@@ -902,6 +930,9 @@
     async function startMCQ() {
       ensureChat();
       emptyState.style.display = 'none';
+      closeSidebar();
+
+      if (isGenerating) return;
       setGenerating(true);
       showTyping();
       abortController = new AbortController();
@@ -910,16 +941,21 @@
         const res = await fetch('/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: 'next', subject: currentSubject, mode: 'mcq', language: currentLang }),
+          body: JSON.stringify({ message: 'next', subject: currentMCQSubject, mode: 'mcq', language: currentLang }),
           signal: abortController.signal
         });
+
+        if (!res.ok) throw new Error('Server error: ' + res.status);
+
         const data = await res.json();
         removeTyping();
         currentMCQQuestion = data.reply;
         renderMCQMessage(data.reply);
       } catch(err) {
         removeTyping();
-        if (err.name !== 'AbortError') addMessage('bot', 'MCQ load nahi hua — dobara try karo.');
+        if (err.name !== 'AbortError') {
+          addMessage('bot', 'Failed to load MCQ. Please check your connection and try again.');
+        }
       }
 
       abortController = null;
@@ -928,8 +964,6 @@
 
     function renderMCQMessage(questionText) {
       ensureChat();
-      appendMessageToChat('bot', questionText);
-      renderChatList();
 
       const row = document.createElement('div');
       row.className = 'message-row';
@@ -961,14 +995,33 @@
       const optionsDiv = document.createElement('div');
       optionsDiv.className = 'mcq-options';
       options.forEach(opt => {
+        // Extract just the letter: "A) ..." -> "A"
+        const letter = opt.trim()[0].toUpperCase();
+        // The display text after "X) "
+        const displayText = opt.trim().slice(2).trim();
+
         const btn = document.createElement('button');
         btn.className = 'mcq-option-btn';
-        btn.textContent = opt;
-        btn.onclick = () => selectMCQAnswer(opt, optionsDiv);
+        btn.dataset.letter = letter; // store letter for matching later
+
+        // Render option: letter label + content span for LaTeX
+        const letterSpan = document.createElement('span');
+        letterSpan.style.cssText = 'font-weight:600;margin-right:8px;flex-shrink:0;';
+        letterSpan.textContent = letter + ')';
+
+        const contentSpan = document.createElement('span');
+        contentSpan.innerHTML = formatText(displayText);
+
+        btn.style.display = 'flex';
+        btn.style.alignItems = 'center';
+        btn.appendChild(letterSpan);
+        btn.appendChild(contentSpan);
+
+        // Send only the letter to the server, not the raw LaTeX text
+        btn.onclick = () => selectMCQAnswer(letter, opt, optionsDiv);
         optionsDiv.appendChild(btn);
       });
 
-      emptyState.style.display = 'none';
       content.appendChild(roleLabel);
       content.appendChild(textDiv);
       content.appendChild(optionsDiv);
@@ -976,12 +1029,17 @@
       row.appendChild(content);
       chatInner.appendChild(row);
       renderMath(textDiv);
+      // Also render LaTeX inside option buttons
+      optionsDiv.querySelectorAll('span').forEach(s => renderMath(s));
       scrollToBottom();
     }
 
-    async function selectMCQAnswer(selectedOption, optionsDiv) {
+    async function selectMCQAnswer(selectedLetter, selectedOptionFull, optionsDiv) {
+      if (isGenerating) return;
+
       const buttons = optionsDiv.querySelectorAll('.mcq-option-btn');
-      buttons.forEach(b => b.disabled = true);
+      // Disable ALL buttons immediately to prevent spam
+      buttons.forEach(b => { b.disabled = true; b.onclick = null; });
       setGenerating(true);
       showTyping();
 
@@ -989,14 +1047,52 @@
         const res = await fetch('/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: selectedOption, subject: currentSubject, mode: 'mcq_answer', previousQuestion: currentMCQQuestion, language: currentLang })
+          body: JSON.stringify({
+            // Send "Student selected: A" — clean, no LaTeX
+            message: 'Student selected option ' + selectedLetter + ': ' + selectedOptionFull,
+            subject: currentMCQSubject,
+            mode: 'mcq_answer',
+            previousQuestion: currentMCQQuestion,
+            language: currentLang
+          })
         });
+
+        if (!res.ok) throw new Error('Server error: ' + res.status);
+
         const data = await res.json();
         removeTyping();
 
-        const isCorrect = data.reply.toLowerCase().includes('sahi hai') || data.reply.toLowerCase().includes('correct');
+        const replyLower = data.reply.toLowerCase();
+
+        const hasWrongIndicator = replyLower.includes('incorrect') ||
+                                  replyLower.includes('ghalat') ||
+                                  replyLower.includes('wrong') ||
+                                  replyLower.includes('not correct') ||
+                                  replyLower.includes('aapka jawab ghalat');
+        const hasCorrectIndicator = replyLower.includes('correct!') ||
+                                    replyLower.includes("that's correct") ||
+                                    replyLower.includes('you are correct') ||
+                                    replyLower.includes('sahi hai') ||
+                                    replyLower.includes('bilkul sahi') ||
+                                    replyLower.includes('well done') ||
+                                    replyLower.includes('aapka jawab sahi');
+        const isCorrect = hasCorrectIndicator && !hasWrongIndicator;
+
+        // Parse correct letter from reply e.g. "Correct answer is C)"
+        const correctLetterMatch = data.reply.match(
+          /(?:correct answer is|answer is|sahi jawab[:\s]+|answer:\s*)\s*([A-D])\)?/i
+        ) || data.reply.match(/\b([A-D])\)\s+(?:is correct|is the correct)/i);
+        const correctLetter = correctLetterMatch ? correctLetterMatch[1].toUpperCase() : null;
+
         buttons.forEach(b => {
-          if (b.textContent === selectedOption) b.classList.add(isCorrect ? 'correct' : 'wrong');
+          const btnLetter = b.dataset.letter;
+          if (btnLetter === selectedLetter) {
+            b.classList.add(isCorrect ? 'correct' : 'wrong');
+          }
+          // Highlight the correct answer green if the student was wrong
+          if (!isCorrect && correctLetter && btnLetter === correctLetter) {
+            b.classList.add('correct');
+          }
         });
 
         mcqSolvedCount++;
@@ -1008,15 +1104,26 @@
         setTimeout(() => {
           const nextRow = document.createElement('div');
           nextRow.className = 'message-row';
-          nextRow.innerHTML = `<div class="avatar bot">🎯</div><div class="message-content"><button class="mcq-start-btn" onclick="startMCQ()" style="margin-top:4px;">📝 Agla Sawal</button></div>`;
+          nextRow.innerHTML = `
+            <div class="avatar bot">🎯</div>
+            <div class="message-content">
+              <button class="next-mcq-btn" onclick="startMCQ()">📝 Next Question</button>
+            </div>`;
           chatInner.appendChild(nextRow);
           scrollToBottom();
         }, 300);
 
       } catch(err) {
         removeTyping();
-        addMessage('bot', 'Kuch masla ho gaya — dobara try karo.');
+        // Re-enable buttons on network error so user can retry
+        buttons.forEach(b => {
+          b.disabled = false;
+          const letter = b.dataset.letter;
+          b.onclick = () => selectMCQAnswer(letter, letter + ') ' + b.querySelector('span:last-child').textContent, optionsDiv);
+        });
+        addMessage('bot', 'Failed to check your answer. Please try selecting an option again.');
       }
+
       setGenerating(false);
     }
 
