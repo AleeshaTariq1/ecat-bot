@@ -428,9 +428,127 @@
       .message-text { font-size: 14.5px; }
       .header-title  { font-size: 13px; }
     }
+
+    /* ===== AUTH MODAL ===== */
+    .auth-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .auth-box {
+      background: var(--bg); border-radius: 16px;
+      padding: 32px 28px; width: 100%; max-width: 380px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .auth-logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 24px;
+    }
+    .auth-logo-icon {
+      width: 38px; height: 38px; background: var(--accent);
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 20px;
+    }
+    .auth-logo span { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+    .auth-title { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+    .auth-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 22px; }
+    .auth-input {
+      width: 100%; padding: 11px 14px; border-radius: 10px;
+      border: 1.5px solid var(--border); background: var(--bg);
+      color: var(--text-primary); font-size: 14px; font-family: inherit;
+      margin-bottom: 12px; outline: none; transition: border-color 0.15s;
+    }
+    .auth-input:focus { border-color: var(--accent); }
+    .auth-btn {
+      width: 100%; padding: 12px; border-radius: 10px;
+      background: var(--accent); border: none; color: white;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s; margin-top: 4px; font-family: inherit;
+    }
+    .auth-btn:hover { background: var(--accent-hover); }
+    .auth-btn:disabled { background: var(--border); cursor: not-allowed; }
+    .auth-switch {
+      text-align: center; margin-top: 18px;
+      font-size: 13px; color: var(--text-secondary);
+    }
+    .auth-switch a { color: var(--accent); cursor: pointer; font-weight: 500; text-decoration: none; }
+    .auth-error {
+      background: #fdecea; border: 1px solid #f5c6c2;
+      color: #a8392d; padding: 9px 13px; border-radius: 8px;
+      font-size: 13px; margin-bottom: 12px; display: none;
+    }
+    [data-theme="dark"] .auth-error { background: #422621; border-color: #7a3a32; color: #f0958a; }
+
+    /* ===== UPGRADE BANNER ===== */
+    .upgrade-banner {
+      background: linear-gradient(135deg, #10a37f, #0d7a5f);
+      color: white; padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px; flex-shrink: 0; gap: 10px;
+    }
+    .upgrade-banner button {
+      background: white; color: var(--accent);
+      border: none; padding: 6px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+
+    /* ===== USER INFO in sidebar footer ===== */
+    .user-info-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 10px; border-radius: 8px;
+      border: none; background: transparent;
+      color: var(--sidebar-text); font-size: 13px;
+      cursor: pointer; width: 100%; text-align: left;
+    }
+    .user-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--accent); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .user-name { font-weight: 600; flex: 1; }
+    .plan-badge {
+      font-size: 10px; padding: 2px 7px; border-radius: 8px;
+      font-weight: 700; text-transform: uppercase;
+    }
+    .plan-badge.free { background: var(--bg-secondary); color: var(--text-secondary); }
+    .plan-badge.paid { background: #fef3c7; color: #92400e; }
   </style>
 </head>
 <body>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">🎯</div>
+        <span>ECAT Bot</span>
+      </div>
+      <div id="authError" class="auth-error"></div>
+
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <div class="auth-title">Welcome back!</div>
+        <div class="auth-sub">Login to continue your ECAT preparation</div>
+        <input class="auth-input" type="email" id="loginEmail" placeholder="Email address" />
+        <input class="auth-input" type="password" id="loginPassword" placeholder="Password" />
+        <button class="auth-btn" id="loginBtn" onclick="doLogin()">Login</button>
+        <div class="auth-switch">Don't have an account? <a onclick="showSignup()">Sign up free</a></div>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signupForm" style="display:none;">
+        <div class="auth-title">Create account</div>
+        <div class="auth-sub">Join thousands of ECAT students</div>
+        <input class="auth-input" type="text" id="signupName" placeholder="Your name" />
+        <input class="auth-input" type="email" id="signupEmail" placeholder="Email address" />
+        <input class="auth-input" type="password" id="signupPassword" placeholder="Password (min 6 chars)" />
+        <button class="auth-btn" id="signupBtn" onclick="doSignup()">Create Account — Free</button>
+        <div class="auth-switch">Already have an account? <a onclick="showLogin()">Login</a></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Sidebar overlay (mobile) -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
@@ -475,11 +593,20 @@
     </div>
 
     <div class="sidebar-footer">
+      <!-- User info -->
+      <div class="user-info-btn" id="userInfoBtn">
+        <div class="user-avatar" id="userAvatarLetter">?</div>
+        <span class="user-name" id="userNameLabel">Loading...</span>
+        <span class="plan-badge free" id="planBadge">Free</span>
+      </div>
       <button class="sidebar-footer-btn" onclick="toggleDarkMode()">
         <span id="darkIcon">🌙</span> <span id="darkLabel">Dark Mode</span>
       </button>
       <button class="sidebar-footer-btn" onclick="toggleLanguage()">
         <span>🌐</span> <span id="langLabel">Switch to Roman Urdu</span>
+      </button>
+      <button class="sidebar-footer-btn" onclick="doLogout()" style="color: var(--danger);">
+        <span>🚪</span> Logout
       </button>
     </div>
   </div>
@@ -517,6 +644,12 @@
       ⚠️ <strong>ECAT AI Bot can make mistakes</strong> — always verify important information.
     </div>
 
+    <!-- Upgrade banner (shown for free users near limit) -->
+    <div class="upgrade-banner" id="upgradeBanner" style="display:none;">
+      <span>⚡ <strong id="upgradeMsg">Upgrade to Pro</strong> for unlimited questions!</span>
+      <button onclick="window.open('https://ecatbot.lemonsqueezy.com','_blank')">Upgrade $5/mo</button>
+    </div>
+
     <div class="chat-container" id="chatContainer">
       <div class="chat-inner" id="chatInner">
         <div class="empty-state" id="emptyState">
@@ -549,6 +682,105 @@
   </div><!-- /main -->
 
   <script>
+    // ===== AUTH =====
+    let authToken = localStorage.getItem('ecat_token') || null;
+    let currentUser = null;
+
+    function showAuthError(msg) {
+      const el = document.getElementById('authError');
+      el.textContent = msg; el.style.display = 'block';
+    }
+    function clearAuthError() {
+      const el = document.getElementById('authError');
+      el.style.display = 'none'; el.textContent = '';
+    }
+    function showLogin() { clearAuthError(); document.getElementById('loginForm').style.display=''; document.getElementById('signupForm').style.display='none'; }
+    function showSignup() { clearAuthError(); document.getElementById('signupForm').style.display=''; document.getElementById('loginForm').style.display='none'; }
+
+    async function doLogin() {
+      clearAuthError();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) return showAuthError('Please fill all fields');
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true; btn.textContent = 'Logging in...';
+      try {
+        const res = await fetch('/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password}) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Login failed');
+        authToken = data.token;
+        localStorage.setItem('ecat_token', authToken);
+        document.getElementById('authOverlay').style.display = 'none';
+        loadUserInfo();
+      } catch(e) { showAuthError(e.message); }
+      btn.disabled = false; btn.textContent = 'Login';
+    }
+
+    async function doSignup() {
+      clearAuthError();
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      if (!name || !email || !password) return showAuthError('Please fill all fields');
+      if (password.length < 6) return showAuthError('Password must be at least 6 characters');
+      const btn = document.getElementById('signupBtn');
+      btn.disabled = true; btn.textContent = 'Creating account...';
+      try {
+        const res = await fetch('/auth/signup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password}) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Signup failed');
+        authToken = data.token;
+        localStorage.setItem('ecat_token', authToken);
+        document.getElementById('authOverlay').style.display = 'none';
+        loadUserInfo();
+      } catch(e) { showAuthError(e.message); }
+      btn.disabled = false; btn.textContent = 'Create Account — Free';
+    }
+
+    function doLogout() {
+      authToken = null; currentUser = null;
+      localStorage.removeItem('ecat_token');
+      document.getElementById('authOverlay').style.display = 'flex';
+      showLogin();
+    }
+
+    async function loadUserInfo() {
+      if (!authToken) { document.getElementById('authOverlay').style.display = 'flex'; return; }
+      try {
+        const res = await fetch('/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } });
+        if (res.status === 401) { doLogout(); return; }
+        currentUser = await res.json();
+        document.getElementById('userNameLabel').textContent = currentUser.name;
+        document.getElementById('userAvatarLetter').textContent = currentUser.name[0].toUpperCase();
+        const badge = document.getElementById('planBadge');
+        badge.textContent = currentUser.plan === 'paid' ? 'Pro ⭐' : 'Free';
+        badge.className = 'plan-badge ' + currentUser.plan;
+        updateUpgradeBanner();
+        document.getElementById('authOverlay').style.display = 'none';
+      } catch(e) { document.getElementById('authOverlay').style.display = 'flex'; }
+    }
+
+    function updateUpgradeBanner(questionsToday) {
+      if (!currentUser) return;
+      const banner = document.getElementById('upgradeBanner');
+      if (currentUser.plan === 'paid') { banner.style.display = 'none'; return; }
+      const used = questionsToday !== undefined ? questionsToday : (currentUser.questionsToday || 0);
+      const limit = 5;
+      if (used >= limit) {
+        document.getElementById('upgradeMsg').textContent = 'Daily limit reached (' + limit + '/' + limit + ')';
+        banner.style.display = 'flex';
+      } else if (used >= limit - 2) {
+        document.getElementById('upgradeMsg').textContent = used + '/' + limit + ' free questions used today';
+        banner.style.display = 'flex';
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    function authHeaders() {
+      return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken };
+    }
+
     // ===== State =====
     const chatInner     = document.getElementById('chatInner');
     const chatContainer = document.getElementById('chatContainer');
@@ -916,13 +1148,21 @@
       try {
         const res = await fetch('/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders(),
           body: JSON.stringify({ message, subject: currentSubject, mode: 'chat', language: currentLang }),
           signal: abortController.signal
         });
         const data = await res.json();
         removeTyping();
-        addMessage('bot', data.reply);
+        if (res.status === 403 && data.error === 'free_limit_reached') {
+          addMessage('bot', '⚠️ ' + data.message);
+          updateUpgradeBanner(5);
+        } else if (res.status === 401) {
+          doLogout();
+        } else {
+          addMessage('bot', data.reply);
+          if (data.questionsToday !== undefined) updateUpgradeBanner(data.questionsToday);
+        }
       } catch(err) {
         removeTyping();
         if (err.name === 'AbortError') {
@@ -951,11 +1191,19 @@
       try {
         const res = await fetch('/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders(),
           body: JSON.stringify({ message: 'next', subject: currentMCQSubject, mode: 'mcq', language: currentLang }),
           signal: abortController.signal
         });
 
+        if (res.status === 403) {
+          const data = await res.json();
+          removeTyping();
+          addMessage('bot', '⚠️ ' + data.message);
+          updateUpgradeBanner(5);
+          abortController = null; setGenerating(false); return;
+        }
+        if (res.status === 401) { doLogout(); return; }
         if (!res.ok) throw new Error('Server error: ' + res.status);
 
         const data = await res.json();
@@ -1057,9 +1305,8 @@
       try {
         const res = await fetch('/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders(),
           body: JSON.stringify({
-            // Send "Student selected: A" — clean, no LaTeX
             message: 'Student selected option ' + selectedLetter + ': ' + selectedOptionFull,
             subject: currentMCQSubject,
             mode: 'mcq_answer',
@@ -1141,6 +1388,7 @@
     // ===== Init =====
     loadStats();
     renderChatList();
+    loadUserInfo();
   </script>
 </body>
 </html>

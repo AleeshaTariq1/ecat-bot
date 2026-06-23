@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "id": "1782202128904",
+      "name": "Aleesha Tariq",
+      "email": "m01484670@gmail.com",
+      "password": "$2b$10$gkZ8G5Uy4gGeW./pKLEL/O9a1MSf3wZuvL7H.1JuJ4g8eUc2Dbi3i",
+      "plan": "free",
+      "questionsToday": 5,
+      "lastQuestionDate": "2026-06-23"
+    }
+  ]
+}
