@@ -11,21 +11,15 @@ app.use(express.static("public"));
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const JWT_SECRET = process.env.JWT_SECRET || "ecat-secret-key-change-this";
-const FREE_DAILY_LIMIT = 5;
 
-// ─── Database Setup (lowdb - simple JSON file) ───────────────────────────────
+// ─── Database Setup ───────────────────────────────────────────────────────────
 let db;
 async function initDB() {
   db = await JSONFilePreset("db.json", { users: [] });
 }
 initDB();
 
-// ─── Helper: get today's date string ─────────────────────────────────────────
-function today() {
-  return new Date().toISOString().split("T")[0];
-}
-
-// ─── Middleware: verify JWT token ─────────────────────────────────────────────
+// ─── Auth Middleware ──────────────────────────────────────────────────────────
 function authMiddleware(req, res, next) {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "Login required" });
@@ -53,15 +47,13 @@ app.post("/auth/signup", async (req, res) => {
     name,
     email,
     password: hashed,
-    plan: "free",          // "free" or "paid"
-    questionsToday: 0,
-    lastQuestionDate: "",
+    createdAt: new Date().toISOString(),
   };
   db.data.users.push(user);
   await db.write();
 
-  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
-  res.json({ token, name: user.name, plan: user.plan });
+  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "30d" });
+  res.json({ token, name: user.name });
 });
 
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
@@ -74,8 +66,8 @@ app.post("/auth/login", async (req, res) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return res.status(400).json({ error: "Wrong password" });
 
-  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
-  res.json({ token, name: user.name, plan: user.plan });
+  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "30d" });
+  res.json({ token, name: user.name });
 });
 
 // ─── GET USER INFO ────────────────────────────────────────────────────────────
@@ -83,58 +75,14 @@ app.get("/auth/me", authMiddleware, async (req, res) => {
   await db.read();
   const user = db.data.users.find((u) => u.id === req.user.id);
   if (!user) return res.status(404).json({ error: "User not found" });
-  res.json({
-    name: user.name,
-    email: user.email,
-    plan: user.plan,
-    questionsToday: user.lastQuestionDate === today() ? user.questionsToday : 0,
-    dailyLimit: user.plan === "paid" ? "Unlimited" : FREE_DAILY_LIMIT,
-  });
+  res.json({ name: user.name, email: user.email });
 });
 
-// ─── LEMON SQUEEZY WEBHOOK (marks user as paid) ───────────────────────────────
-app.post("/webhook/lemonsqueezy", express.raw({ type: "application/json" }), async (req, res) => {
-  const event = JSON.parse(req.body);
-  const eventName = event?.meta?.event_name;
-  const customerEmail = event?.data?.attributes?.user_email;
-
-  if (
-    (eventName === "order_created" || eventName === "subscription_created") &&
-    customerEmail
-  ) {
-    await db.read();
-    const user = db.data.users.find((u) => u.email === customerEmail);
-    if (user) {
-      user.plan = "paid";
-      await db.write();
-    }
-  }
-  res.sendStatus(200);
-});
-
-// ─── CHAT (protected) ────────────────────────────────────────────────────────
+// ─── CHAT ─────────────────────────────────────────────────────────────────────
 app.post("/chat", authMiddleware, async (req, res) => {
   await db.read();
   const user = db.data.users.find((u) => u.id === req.user.id);
   if (!user) return res.status(404).json({ error: "User not found" });
-
-  // Reset daily count if new day
-  if (user.lastQuestionDate !== today()) {
-    user.questionsToday = 0;
-    user.lastQuestionDate = today();
-  }
-
-  // Check free limit
-  if (user.plan === "free" && user.questionsToday >= FREE_DAILY_LIMIT) {
-    return res.status(403).json({
-      error: "free_limit_reached",
-      message: `You've used all ${FREE_DAILY_LIMIT} free questions for today. Upgrade to ask unlimited questions!`,
-    });
-  }
-
-  // Increment count
-  user.questionsToday += 1;
-  await db.write();
 
   try {
     const { message, subject = "All", mode = "chat", language = "english", previousQuestion } = req.body;
@@ -158,7 +106,10 @@ app.post("/chat", authMiddleware, async (req, res) => {
 The student wants a practice MCQ from: ${subjectInstruction}.
 Create one ECAT-style multiple choice question. Use this exact format:
 **Question:** [question here]
-A) [option]  B) [option]  C) [option]  D) [option]
+A) [option]
+B) [option]
+C) [option]
+D) [option]
 Only provide the question and options — do NOT reveal the answer yet.
 ${languageInstruction}
 For equations use LaTeX: $E = mc^2$ (inline) or $$x = \\frac{-b}{2a}$$ (display).`;
@@ -179,12 +130,8 @@ Student's question: ${message}`;
 
     const result = await model.generateContent(prompt);
     const reply = result.response.text();
-    res.json({
-      reply,
-      questionsToday: user.questionsToday,
-      dailyLimit: user.plan === "paid" ? null : FREE_DAILY_LIMIT,
-      plan: user.plan,
-    });
+    res.json({ reply });
+
   } catch (error) {
     console.error("Server error:", error.message);
     res.status(500).json({ reply: "Something went wrong. Please try again." });

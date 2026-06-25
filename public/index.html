@@ -480,19 +480,6 @@
     }
     [data-theme="dark"] .auth-error { background: #422621; border-color: #7a3a32; color: #f0958a; }
 
-    /* ===== UPGRADE BANNER ===== */
-    .upgrade-banner {
-      background: linear-gradient(135deg, #10a37f, #0d7a5f);
-      color: white; padding: 10px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 13px; flex-shrink: 0; gap: 10px;
-    }
-    .upgrade-banner button {
-      background: white; color: var(--accent);
-      border: none; padding: 6px 14px; border-radius: 20px;
-      font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
-    }
-
     /* ===== USER INFO in sidebar footer ===== */
     .user-info-btn {
       display: flex; align-items: center; gap: 8px;
@@ -508,12 +495,6 @@
       font-size: 12px; font-weight: 700; flex-shrink: 0;
     }
     .user-name { font-weight: 600; flex: 1; }
-    .plan-badge {
-      font-size: 10px; padding: 2px 7px; border-radius: 8px;
-      font-weight: 700; text-transform: uppercase;
-    }
-    .plan-badge.free { background: var(--bg-secondary); color: var(--text-secondary); }
-    .plan-badge.paid { background: #fef3c7; color: #92400e; }
   </style>
 </head>
 <body>
@@ -597,7 +578,7 @@
       <div class="user-info-btn" id="userInfoBtn">
         <div class="user-avatar" id="userAvatarLetter">?</div>
         <span class="user-name" id="userNameLabel">Loading...</span>
-        <span class="plan-badge free" id="planBadge">Free</span>
+
       </div>
       <button class="sidebar-footer-btn" onclick="toggleDarkMode()">
         <span id="darkIcon">🌙</span> <span id="darkLabel">Dark Mode</span>
@@ -644,11 +625,7 @@
       ⚠️ <strong>ECAT AI Bot can make mistakes</strong> — always verify important information.
     </div>
 
-    <!-- Upgrade banner (shown for free users near limit) -->
-    <div class="upgrade-banner" id="upgradeBanner" style="display:none;">
-      <span>⚡ <strong id="upgradeMsg">Upgrade to Pro</strong> for unlimited questions!</span>
-      <button onclick="window.open('https://ecatbot.lemonsqueezy.com','_blank')">Upgrade $5/mo</button>
-    </div>
+
 
     <div class="chat-container" id="chatContainer">
       <div class="chat-inner" id="chatInner">
@@ -752,30 +729,11 @@
         currentUser = await res.json();
         document.getElementById('userNameLabel').textContent = currentUser.name;
         document.getElementById('userAvatarLetter').textContent = currentUser.name[0].toUpperCase();
-        const badge = document.getElementById('planBadge');
-        badge.textContent = currentUser.plan === 'paid' ? 'Pro ⭐' : 'Free';
-        badge.className = 'plan-badge ' + currentUser.plan;
-        updateUpgradeBanner();
         document.getElementById('authOverlay').style.display = 'none';
       } catch(e) { document.getElementById('authOverlay').style.display = 'flex'; }
     }
 
-    function updateUpgradeBanner(questionsToday) {
-      if (!currentUser) return;
-      const banner = document.getElementById('upgradeBanner');
-      if (currentUser.plan === 'paid') { banner.style.display = 'none'; return; }
-      const used = questionsToday !== undefined ? questionsToday : (currentUser.questionsToday || 0);
-      const limit = 5;
-      if (used >= limit) {
-        document.getElementById('upgradeMsg').textContent = 'Daily limit reached (' + limit + '/' + limit + ')';
-        banner.style.display = 'flex';
-      } else if (used >= limit - 2) {
-        document.getElementById('upgradeMsg').textContent = used + '/' + limit + ' free questions used today';
-        banner.style.display = 'flex';
-      } else {
-        banner.style.display = 'none';
-      }
-    }
+
 
     function authHeaders() {
       return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken };
@@ -1154,14 +1112,10 @@
         });
         const data = await res.json();
         removeTyping();
-        if (res.status === 403 && data.error === 'free_limit_reached') {
-          addMessage('bot', '⚠️ ' + data.message);
-          updateUpgradeBanner(5);
-        } else if (res.status === 401) {
+        if (res.status === 401) {
           doLogout();
         } else {
           addMessage('bot', data.reply);
-          if (data.questionsToday !== undefined) updateUpgradeBanner(data.questionsToday);
         }
       } catch(err) {
         removeTyping();
@@ -1196,13 +1150,6 @@
           signal: abortController.signal
         });
 
-        if (res.status === 403) {
-          const data = await res.json();
-          removeTyping();
-          addMessage('bot', '⚠️ ' + data.message);
-          updateUpgradeBanner(5);
-          abortController = null; setGenerating(false); return;
-        }
         if (res.status === 401) { doLogout(); return; }
         if (!res.ok) throw new Error('Server error: ' + res.status);
 
