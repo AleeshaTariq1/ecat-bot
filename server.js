@@ -140,5 +140,5 @@ Student's question: ${message}`;
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`ECAT Bot Running on — port ${PORT} pe!`);
+  console.log(`ECAT Bot Running on — port ${PORT} !`);
 });
